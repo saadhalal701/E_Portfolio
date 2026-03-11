@@ -1,0 +1,291 @@
+﻿@using WEB_SH.Entities
+@model Personne
+@{
+    ViewData["Title"] = "Mon Portfolio";
+}
+
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+        <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+            <i class="fas fa-briefcase"></i> PORTOF
+        </a>
+        <div class="ms-auto d-flex gap-3">
+            <a asp-controller="Message" asp-action="Index" class="btn btn-outline-primary">
+                <i class="fas fa-envelope"></i> Messages
+            </a>
+            <a asp-controller="Account" asp-action="Logout" class="btn btn-outline-danger">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <!-- Messages de succès -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="Update" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        <!-- Informations personnelles -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fas fa-user me-2"></i>Informations personnelles</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        @if (!string.IsNullOrEmpty(Model.Photo))
+                        {
+                            <img src="@Model.Photo" class="img-fluid rounded-circle mb-3" style="width: 200px; height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                                 style="width: 200px; height: 200px;">
+                                <i class="fas fa-user fa-5x text-white"></i>
+                            </div>
+                        }
+                        <input type="file" name="photoFile" class="form-control" accept="image/*" />
+                        <small class="text-muted">Format: JPG, PNG. Max: 2MB</small>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Nom</label>
+                                <input asp-for="Nom" class="form-control" required />
+                                <span asp-validation-for="Nom" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Prénom</label>
+                                <input asp-for="Prenom" class="form-control" required />
+                                <span asp-validation-for="Prenom" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Email</label>
+                                <input asp-for="Email" type="email" class="form-control" required />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Téléphone</label>
+                                <input asp-for="Telephone" class="form-control" />
+                                <span asp-validation-for="Telephone" class="text-danger"></span>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold">Bio</label>
+                                <textarea asp-for="Bio" class="form-control" rows="4"></textarea>
+                                <span asp-validation-for="Bio" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compétences -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0"><i class="fas fa-code me-2"></i>Compétences</h3>
+                <button type="button" class="btn btn-light btn-sm" onclick="ajouterCompetence()">
+                    <i class="fas fa-plus me-1"></i>Ajouter
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="competencesList" class="row">
+                    @foreach (var comp in Model.Competences)
+                    {
+                        <div class="col-md-6 mb-2">
+                            <div class="d-flex align-items-center justify-content-between p-2 border rounded">
+                                <div>
+                                    <strong>@comp.Nom</strong>
+                                    <span class="badge bg-info ms-2">@comp.Niveau</span>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="supprimerCompetence(@comp.Id)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.Competences.Any())
+                    {
+                        <div class="col-12 text-center text-muted">
+                            <p>Aucune compétence ajoutée.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Projets -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Projets</h3>
+                <button type="button" class="btn btn-light btn-sm" onclick="ajouterProjet()">
+                    <i class="fas fa-plus me-1"></i>Ajouter
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="projetsList">
+                    @foreach (var projet in Model.Projets)
+                    {
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="card-title">@projet.Titre</h5>
+                                        <p class="card-text">@projet.Description</p>
+                                        @if (!string.IsNullOrEmpty(projet.Lien))
+                                        {
+                                            <a href="@projet.Lien" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-external-link-alt me-1"></i>Voir le projet
+                                            </a>
+                                        }
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="supprimerProjet(@projet.Id)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.Projets.Any())
+                    {
+                        <div class="text-center text-muted">
+                            <p>Aucun projet ajouté.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Bouton Enregistrer -->
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-success btn-lg px-5">
+                <i class="fas fa-save me-2"></i>Enregistrer les modifications
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        // Ajouter une compétence
+        function ajouterCompetence() {
+            const nom = prompt("Nom de la compétence (ex: C#, JavaScript, SQL):");
+            if (!nom) return;
+
+            const niveau = prompt("Niveau (Debutant, Intermediaire, Avance, Expert):");
+            if (!niveau) return;
+
+            // Validation des valeurs
+            const niveauxValides = ["Debutant", "Intermediaire", "Avance", "Expert"];
+            if (!niveauxValides.includes(niveau)) {
+                alert("Niveau invalide. Choisissez parmi: Debutant, Intermediaire, Avance, Expert");
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("AjouterCompetence", "Portfolio")',
+                type: 'POST',
+                data: {
+                    nom: nom,
+                    niveau: niveau
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || "Erreur lors de l'ajout");
+                    }
+                },
+                error: function() {
+                    alert("Erreur de connexion au serveur");
+                }
+            });
+        }
+
+        // Supprimer une compétence
+        function supprimerCompetence(id) {
+            if (!confirm("Voulez-vous vraiment supprimer cette compétence ?")) {
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("SupprimerCompetence", "Portfolio")',
+                type: 'POST',
+                data: { id: id },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || "Erreur lors de la suppression");
+                    }
+                },
+                error: function() {
+                    alert("Erreur de connexion au serveur");
+                }
+            });
+        }
+
+        // Ajouter un projet
+        function ajouterProjet() {
+            const titre = prompt("Titre du projet:");
+            if (!titre) return;
+
+            const description = prompt("Description du projet:");
+            if (!description) return;
+
+            const lien = prompt("Lien vers le projet (optionnel - URL complète):");
+
+            $.ajax({
+                url: '@Url.Action("AjouterProjet", "Portfolio")',
+                type: 'POST',
+                data: {
+                    titre: titre,
+                    description: description,
+                    lien: lien || ''
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || "Erreur lors de l'ajout");
+                    }
+                },
+                error: function() {
+                    alert("Erreur de connexion au serveur");
+                }
+            });
+        }
+
+        // Supprimer un projet
+        function supprimerProjet(id) {
+            if (!confirm("Voulez-vous vraiment supprimer ce projet ?")) {
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("SupprimerProjet", "Portfolio")',
+                type: 'POST',
+                data: { id: id },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert(response.message || "Erreur lors de la suppression");
+                    }
+                },
+                error: function() {
+                    alert("Erreur de connexion au serveur");
+                }
+            });
+        }
+    </script>
+}

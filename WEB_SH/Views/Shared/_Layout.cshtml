@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PORTOF</title>
+
+    <!-- Bootstrap (déjà dans lib/) -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+
+    <!-- Site CSS existant -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- NOUVEAU: PORTOF CSS -->
+    <link rel="stylesheet" href="~/css/portof.css" asp-append-version="true" />
+</head>
+<body>
+    @RenderBody()
+
+    <!-- jQuery (déjà dans lib/) -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <!-- Bootstrap JS (déjà dans lib/) -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Site JS existant -->
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- NOUVEAU: PORTOF JS -->
+    <script src="~/js/portof.js" asp-append-version="true"></script>
+
+    <!-- Scripts de validation AJOUTÉS ICI -->
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

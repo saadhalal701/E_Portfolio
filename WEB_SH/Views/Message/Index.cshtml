@@ -1,0 +1,159 @@
+﻿@using WEB_SH.Entities
+@model IEnumerable<Message>
+@{
+    ViewData["Title"] = "Messagerie";
+}
+
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="javascript:history.back()">
+            <i class="fas fa-arrow-left me-2"></i> Retour
+        </a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <!-- Message d'alerte pour les erreurs -->
+    <div id="errorAlert" class="alert alert-danger alert-dismissible fade show d-none" role="alert">
+        <span id="errorMessage"></span>
+        <button type="button" class="btn-close" onclick="hideError()"></button>
+    </div>
+
+    <!-- Message de succès -->
+    <div id="successAlert" class="alert alert-success alert-dismissible fade show d-none" role="alert">
+        <span id="successMessage"></span>
+        <button type="button" class="btn-close" onclick="hideSuccess()"></button>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            @if (ViewBag.DestinataireId != null)
+            {
+                <div class="section-card">
+                    <h2><i class="fas fa-envelope text-primary"></i> Envoyer un message</h2>
+
+                    <form id="messageForm">
+                        @Html.AntiForgeryToken() <!-- AJOUT IMPORTANT -->
+                        <input type="hidden" name="destinataireId" value="@ViewBag.DestinataireId" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Objet</label>
+                            <input type="text" name="objet" class="form-control form-control-lg" required
+                                   maxlength="200" placeholder="Sujet de votre message" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Message</label>
+                            <textarea name="contenu" class="form-control" rows="8" required
+                                  placeholder="Écrivez votre message ici..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                            <i class="fas fa-paper-plane me-2"></i> Envoyer
+                        </button>
+                    </form>
+                </div>
+            }
+
+            <div class="section-card mt-4">
+                <h3><i class="fas fa-inbox text-primary"></i> Messages reçus</h3>
+
+                <div class="list-group">
+                    @if (Model.Any())
+                    {
+                        @foreach (var message in Model)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5>@message.Expediteur?.Nom @message.Expediteur?.Prenom</h5>
+                                    <small>@message.DateEnvoi.ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                                <p class="mb-1"><strong>@message.Objet</strong></p>
+                                <small>@message.Contenu</small>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-3">
+                            <p>Aucun message reçu.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AJOUTEZ CE SCRIPT À LA FIN DE VOTRE FICHIER -->
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#messageForm').submit(function(e) {
+                e.preventDefault();
+
+                // Récupérer les données du formulaire
+                var formData = $(this).serialize();
+                var submitBtn = $('#submitBtn');
+
+                // Désactiver le bouton pendant l'envoi
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i> Envoi en cours...');
+
+                // Cacher les alertes précédentes
+                hideError();
+                hideSuccess();
+
+                // Envoyer la requête AJAX
+                $.ajax({
+                    url: '@Url.Action("Envoyer", "Message")',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            showSuccess(response.message || 'Message envoyé avec succès!');
+                            // Réinitialiser le formulaire
+                            $('#messageForm')[0].reset();
+                            // Recharger la page après 2 secondes pour voir le nouveau message
+                            setTimeout(function() {
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            showError(response.message || 'Erreur lors de l\'envoi du message');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Erreur AJAX:', xhr.responseText);
+                        showError('Erreur de connexion au serveur: ' + error);
+                    },
+                    complete: function() {
+                        // Réactiver le bouton
+                        submitBtn.prop('disabled', false);
+                        submitBtn.html('<i class="fas fa-paper-plane me-2"></i> Envoyer');
+                    }
+                });
+            });
+        });
+
+        // Fonctions pour gérer les alertes
+        function showError(message) {
+            $('#errorMessage').text(message);
+            $('#errorAlert').removeClass('d-none');
+            $('#successAlert').addClass('d-none');
+        }
+
+        function hideError() {
+            $('#errorAlert').addClass('d-none');
+        }
+
+        function showSuccess(message) {
+            $('#successMessage').text(message);
+            $('#successAlert').removeClass('d-none');
+            $('#errorAlert').addClass('d-none');
+        }
+
+        function hideSuccess() {
+            $('#successAlert').addClass('d-none');
+        }
+    </script>
+}

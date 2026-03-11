@@ -1,0 +1,44 @@
+﻿@{
+    ViewData["Title"] = "Choix du rôle";
+}
+
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+        <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+            <i class="fas fa-briefcase"></i> PORTOF
+        </a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="text-center mb-5 animate-fade-in">
+        <h1 class="text-white display-4 fw-bold">Choisissez votre rôle</h1>
+        <p class="text-white-50 fs-5">Sélectionnez le profil qui vous correspond</p>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-5">
+            <a asp-action="Register" asp-route-role="Recruteur" class="text-decoration-none">
+                <div class="role-card">
+                    <div class="role-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h2 class="mb-3">Recruteur</h2>
+                    <p class="text-muted">Découvrez des talents exceptionnels</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-5">
+            <a asp-action="Register" asp-route-role="Candidat" class="text-decoration-none">
+                <div class="role-card">
+                    <div class="role-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h2 class="mb-3">Candidat</h2>
+                    <p class="text-muted">Créez votre portfolio professionnel</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,56 @@
+﻿@using WEB_SH.Entities
+@model Personne
+@{
+    ViewData["Title"] = "Portfolio de " + Model.Nom;
+}
+
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+        <a class="navbar-brand" asp-action="ListeRecruteur">
+            <i class="fas fa-arrow-left me-2"></i> Retour
+        </a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="section-card text-center">
+        @if (!string.IsNullOrEmpty(Model.Photo))
+        {
+            <img src="@Model.Photo" class="img-fluid rounded-circle mb-3" style="max-width: 150px;">
+        }
+        <h1 class="fw-bold">@Model.Nom @Model.Prenom</h1>
+        <p class="lead text-muted">@Model.Email</p>
+    </div>
+
+    <div class="section-card">
+        <h3><i class="fas fa-user text-primary"></i> À propos</h3>
+        <p class="lead">@Model.Bio</p>
+    </div>
+
+    <div class="section-card">
+        <h3><i class="fas fa-code text-primary"></i> Compétences</h3>
+        <div class="mt-3">
+            @foreach (var comp in Model.Competences)
+            {
+                <span class="competence-badge">@comp.Nom</span>
+            }
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h3><i class="fas fa-project-diagram text-primary"></i> Projets</h3>
+        @foreach (var projet in Model.Projets)
+        {
+            <div class="project-card">
+                <h5>@projet.Titre</h5>
+                <p>@projet.Description</p>
+            </div>
+        }
+    </div>
+
+    <div class="text-center">
+        <a asp-controller="Message" asp-action="Index" asp-route-destinataireId="@Model.Id" class="btn btn-lg btn-success px-5">
+            <i class="fas fa-envelope me-2"></i> Contacter ce candidat
+        </a>
+    </div>
+</div>
